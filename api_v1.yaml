@@ -1,0 +1,451 @@
+swagger: "2.0"
+info:
+  description: "This is the v1 of rt-fbk tool."
+  version: "0.0.1"
+  title: "RT-FBK"
+  contact:
+    email: "leonardo.moreno@zagalabs.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "rtfbk.zagalabs.com"
+basePath: "/v1"
+tags:
+- name: "fbk"
+  description: "Operations about Feedbacks"
+  externalDocs:
+    description: "Find out more"
+    url: "http://docs.rt-fdbk.io/fdbk"
+- name: "user"
+  description: "Operations about user"
+  externalDocs:
+    description: "Find out more about our store"
+    url: "http://docs.rt-fdbk.io/user"
+schemes:
+- "http"
+paths:
+  /fbk:
+    post:
+      tags:
+      - "fbk"
+      summary: "Add a new fbk"
+      description: "Creates a new Feedback"
+      operationId: "addFbkWithJson"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Fbk object that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/Feedback"
+      responses:
+        400:
+          description: "Validation exception"
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Feedback"
+      security:
+      - fbkstore_auth:
+        - "write:fbks"
+        - "read:fbks"
+    put:
+      tags:
+      - "fbk"
+      summary: "Creates a feedback with form data"
+      description: "Support for feedback creation through form data"
+      operationId: "addFbkWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sender"
+        in: "formData"
+        description: "Sender of the feedback"
+        required: true
+        type: "string"
+      - name: "receiver"
+        in: "formData"
+        description: "Receiver of the feedback"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "formData"
+        description: "Type of Feedback"
+        required: true
+        type: "string"
+        enum:
+        - "negative"
+        - "positive"
+        collectionFormat: "multi"
+      - name: "message"
+        in: "formData"
+        description: "Feedback message"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Validation exception"
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Feedback"
+      security:
+      - fbkstore_auth:
+        - "write:fbks"
+        - "read:fbks"
+  /fbk/{uuid}:
+    get:
+      tags:
+      - "fbk"
+      summary: "Feedback details by ID"
+      description: "Returns a single Feedback"
+      operationId: "getFbkById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: "path"
+        description: "ID of Feedback to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Feedback"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Fbk not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "fbk"
+      summary: "Updates a Feedback with form data"
+      description: ""
+      operationId: "updateFbkWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: "path"
+        description: "ID of Feedback that needs to be updated"
+        required: true
+        type: "string"
+        format: "uuid"
+      - name: "sender"
+        in: "formData"
+        description: "Sender of the feedback"
+        required: true
+        type: "string"
+      - name: "receiver"
+        in: "formData"
+        description: "Receiver of the feedback"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "formData"
+        description: "Type of Feedback"
+        required: true
+        type: "string"
+        enum:
+        - "negative"
+        - "positive"
+        collectionFormat: "multi"
+      - name: "message"
+        in: "formData"
+        description: "Feedback message"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid input"
+        404:
+          description: "Fbk not found"
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Feedback"
+      security:
+      - fbkstore_auth:
+        - "write:fbks"
+        - "read:fbks"
+    delete:
+      tags:
+      - "fbk"
+      summary: "Deletes a fbk"
+      description: ""
+      operationId: "deleteFbk"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: "path"
+        description: "Fbk id to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Fbk not found"
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+      security:
+      - fbkstore_auth:
+        - "write:fbks"
+        - "read:fbks"
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "createUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+  /user/createWithList:
+    post:
+      tags:
+      - "user"
+      summary: "Creates list of users with given input array"
+      description: ""
+      operationId: "createUsersWithListInput"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "List of user object"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+  /user/login:
+    get:
+      tags:
+      - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "loginUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "query"
+        description: "The user name for login"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        description: "The password for login in clear text"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+          headers:
+            X-Rate-Limit:
+              type: "integer"
+              format: "int32"
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: "string"
+              format: "date-time"
+              description: "date in UTC when token expires"
+        400:
+          description: "Invalid username/password supplied"
+  /user/logout:
+    get:
+      tags:
+      - "user"
+      summary: "Logs out current logged in user session"
+      description: ""
+      operationId: "logoutUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters: []
+      responses:
+        default:
+          description: "successful operation"
+  /user/{username}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by user name"
+      description: ""
+      operationId: "getUserByName"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be fetched. Use user1 for testing. "
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "deleteUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+securityDefinitions:
+  fbkstore_auth:
+    type: "oauth2"
+    authorizationUrl: "http://fdbk.swagger.io/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:fbks: "modify Feedbacks in your account"
+      read:fbks: "read your Feedbacks"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+# reportes
+  User:
+    type: "object"
+    properties:
+      uuid:
+        type: "string"
+        format: "uuid"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      userStatus:
+        type: "integer"
+        format: "int32"
+        description: "User Status"
+    xml:
+      name: "User"
+  Feedback:
+    type: "object"
+    required:
+    - "sender"
+    - "receiver"
+    - "category"
+    - "message"
+    properties:
+      uuid:
+        type: "string"
+        format: "uuid"
+      sender:
+        $ref: "#/definitions/User"
+      receiver:
+        $ref: "#/definitions/User"
+      category:
+        type: "string"
+        enum:
+        - "negative"
+        - "positive"
+      message:
+        type: "string"
+    xml:
+      name: "Feedback"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about rt-fbk"
+  url: "http://docs.rt-fbk.io"
