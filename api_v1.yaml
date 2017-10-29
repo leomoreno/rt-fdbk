@@ -525,6 +525,7 @@ definitions:
         example: '2009-11-13T10:39:35Z'
     xml:
       name: zigzag
+# @todo: Move to the endpoint definition. Need to find out why the parser won't let me.
   FeedbackSearchResults:
     type: object
     properties:
