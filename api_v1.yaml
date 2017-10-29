@@ -142,7 +142,7 @@ paths:
         '400':
           description: Invalid ID supplied
         '404':
-          description: Feedback not foundMM
+          description: Feedback not found
       security:
         - api_key: []
   '/feedback/search/':
