@@ -7,29 +7,29 @@ info:
     email: leonardo.moreno@zagalabs.com
   license:
     name: Apache 2.0
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: api.zigzag.fun
 basePath: /v1
 tags:
   - name: feedback
     description: Feedback operations
-    externalDocs:
-      description: Find out more
-      url: "http://docs.zigzag.fun/feedback"
+    #externalDocs:
+      #description: Find out more
+      #url: 'http://docs.zigzag.fun/feedback'
   - name: user
     description: User operations
-    externalDocs:
-      description: Find out more
-      url: "http://docs.zigzag.fun/user"
+    #externalDocs:
+      #description: Find out more
+      #url: 'http://docs.zigzag.fun/user'
 schemes:
   - http
 paths:
-  /fbk:
+  /feedback:
     post:
       tags:
         - feedback
       summary: Creates a feedback
-      description: Sends a zigzag from a sender to a receiver
+      description: Sends a feedback from a sender to a receiver and sends a copy to Human Resources
       operationId: createFeedback
       consumes:
         - application/json
@@ -39,28 +39,28 @@ paths:
       parameters:
         - name: body
           in: body
-          schema:
+          schema: 
             type: object
             properties:
               sender:
                 description: Slack username of the sender
                 type: string
-                format: regex
+                format: regex 
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: juan
               receiver:
                 description: Slack username of the receiver
                 type: string
-                format: regex
+                format: regex 
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: pedro
-              type:
+              type: 
                 description: Type of feedback
                 type: string
                 enum:
                   - ':)'
                   - ':('
-              message:
+              message: 
                 description: Feedback message
                 type: string
                 maxLength: 140
@@ -108,11 +108,11 @@ paths:
           description: Feedback not found
       security:
         - api_key: []
-  '/feedback/reply/{uuid}':
+  '/feedback/{uuid}/reply/':
     put:
       tags:
         - feedback
-      summary: Get feedback details by ID
+      summary: Updates a feedback with a reply sent from the receiver, sends the reply to the sender and notifies Humar Resources. This can only be triggered by the original receiver.
       description: Returns a Feedback object given an ID
       operationId: replyFeedbackById
       consumes:
@@ -129,7 +129,7 @@ paths:
           format: uuid
         - name: body
           in: body
-          schema:
+          schema: 
             description: Feedback reply
             type: string
             maxLength: 140
@@ -145,12 +145,90 @@ paths:
           description: Feedback not found
       security:
         - api_key: []
+  '/feedback/search/':
+    get:
+      tags:
+        - feedback
+      summary: Returns a list of feedback objects
+      description: Performs a search and returns the results as a list of feedback objects. If consumers provide a search term, the results will have feedbacks contain The search can be filtered by type, sender and/or receiver and limited to a specific time frame.
+      operationId: searchFeedback
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema: 
+            type: object
+            properties:
+              keyword: 
+                description: Search term to look for in messages and replies.
+                type: string
+                example: keyword
+              sender:
+                description: Slack username of a sender. If provided, the results will only contain with fedbacks sent by this sender.
+                type: string
+                format: regex
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: juan
+              receiver:
+                description: Slack username of a receiver. If provided, the results will only contain fedbacks received by this sender.
+                type: string
+                format: regex 
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: pedro
+              type: 
+                description: Type of feedback. If provided, the results will only contain this type of fedbacks.
+                type: string
+                enum:
+                  - ':)'
+                  - ':('
+              fromDate:
+                description: If provided, the results will only contain this fedbacks sent.
+                type: string
+                format: date
+                example: '2016-04-20'
+              toDate:
+                description: If provided, the results will only contain this fedbacks sent.
+                type: string
+                format: date
+                example: '2017-04-20'
+              sortBy: 
+                description: Name of the field to sort by
+                type: string
+                enum: [created, sender, receiver, message, reply]
+                default: created
+              sortDirection:
+                description: Direction of the sort
+                type: string
+                enum: [ascendant, descendant]
+                default: ascendant
+              resultsPerPage: 
+                description: Number of results per page
+                type: integer
+                default: 50
+                minimum: 1
+              page: 
+                description: Page number 
+                type: integer
+                default: 50
+                minimum: 1
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/FeedbackSearchResults'
+      security:
+        - api_key: []
+  
   /user:
     post:
       tags:
         - user
-      summary: Create user
-      description: This can only be done by the logged in user.
+      summary: Creates a user
+      description: Use this to add a new user 
       operationId: createUser
       consumes:
         - application/json
@@ -166,7 +244,7 @@ paths:
             $ref: '#/definitions/User'
       responses:
         default:
-          description: successful operation
+          description: Successful operation
   /user/createWithList:
     post:
       tags:
@@ -189,71 +267,20 @@ paths:
       responses:
         default:
           description: successful operation
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      description: ''
-      operationId: loginUser
-      produces:
-        - application/xml
-        - application/json
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: true
-          type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            type: string
-          headers:
-            X-Rate-Limit:
-              type: integer
-              format: int32
-              description: calls per hour allowed by the user
-            X-Expires-After:
-              type: string
-              format: date-time
-              description: date in UTC when token expires
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ''
-      operationId: logoutUser
-      produces:
-        - application/xml
-        - application/json
-      parameters: []
-      responses:
-        default:
-          description: successful operation
-  '/user/{username}':
+  '/user/{slackUsername}':
     get:
       tags:
         - user
       summary: Get user by user name
       description: ''
-      operationId: getUserByName
+      operationId: readUserByName
       produces:
         - application/xml
         - application/json
       parameters:
-        - name: username
+        - name: slackUsername
           in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
+          description: 'The name that needs to be fetched. Use user1 for testing.'
           required: true
           type: string
       responses:
@@ -268,14 +295,14 @@ paths:
     put:
       tags:
         - user
-      summary: Updated user
+      summary: Updates user
       description: This can only be done by the logged in user.
       operationId: updateUser
       produces:
         - application/xml
         - application/json
       parameters:
-        - name: username
+        - name: slackUsername
           in: path
           description: name that need to be updated
           required: true
@@ -301,7 +328,7 @@ paths:
         - application/xml
         - application/json
       parameters:
-        - name: username
+        - name: slackUsername
           in: path
           description: The name that needs to be deleted
           required: true
@@ -311,6 +338,103 @@ paths:
           description: Invalid username supplied
         '404':
           description: User not found
+  '/report/users':
+    get:
+      tags:
+        - reports
+      summary: Generates a report of users given a time frame
+      description: The report contains the list of users that sent or received at least one feedback in the specified period with a summary of the number of feedbacks sent or received by type. 
+      operationId: usersReport
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema: 
+            type: object
+            properties:
+              fromDate: 
+                description: Start date of the report. If not provided, the beginning of times is assumed
+                type: string
+                format: date
+              toDate:
+                description: End date of the report. If not provided, today's date will be assumed.
+                type: string
+                format: date
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 4932252f-84ac-4b4c-9ddf-882cf045e6b8
+                email:
+                  type: string
+                  format: email
+                  example: juan@example.com
+                slackUsername:
+                  type: string
+                  example: juan
+                  format: regex 
+                  pattern: ^[a-z0-9][a-z0-9._-]*$
+                firstName:
+                  type: string
+                  example: Pedro
+                lastName:
+                  type: string
+                  example: Pérez
+                totalPositiveFeedback: 
+                  type: integer
+                totalNegativeFeedback: 
+                  type: integer
+      security:
+        - api_key: []
+  '/report/feedbacks':
+    get:
+      tags:
+        - reports
+      summary: Generates a report of feedbacks given a time frame
+      description: The report contains a summary of feedback in a given time frame, grouped by type.
+      operationId: feedbackReport
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema: 
+            type: object
+            properties:
+              fromDate: 
+                description: Start date of the report. If not provided, the beginning of times is assumed
+                type: string
+                format: date
+              toDate:
+                description: End date of the report. If not provided, today's date will be assumed.
+                type: string
+                format: date
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              positiveFeedback: 
+                type: integer
+              negativeFeedback: 
+                type: integer
+      security:
+        - api_key: []
 securityDefinitions:
   zigzag_auth:
     type: oauth2
@@ -326,7 +450,7 @@ securityDefinitions:
 definitions:
   User:
     type: object
-    required:
+    required: 
       - uuid
       - slackUsername
     properties:
@@ -341,12 +465,14 @@ definitions:
       slackUsername:
         type: string
         example: juan
-        format: regex
+        format: regex 
         pattern: ^[a-z0-9][a-z0-9._-]*$
       firstName:
         type: string
+        example: Pedro
       lastName:
         type: string
+        example: Pérez
       password:
         type: string
         minLength: 8
@@ -399,16 +525,35 @@ definitions:
         example: '2009-11-13T10:39:35Z'
     xml:
       name: zigzag
-  ApiResponse:
+# @todo: Move to the endpoint definition. Need to find out why the parser won't let me.
+  FeedbackSearchResults:
     type: object
     properties:
-      code:
+      totalPages:
         type: integer
-        format: int32
-      type:
-        type: string
-      message:
-        type: string
+        description: Number of total pages
+        minimum: 1
+        example: 1
+      pageNumber: 
+        type: integer
+        description: Current page number
+        minimum: 1
+        example: 1
+        default: 50
+      results: 
+        type: array
+        items: 
+          $ref: '#/definitions/Feedback'
+#  ApiResponse:
+#    type: object
+#    properties:
+#      code:
+#        type: integer
+#        format: int32
+#      type:
+#        type: string
+#      message:
+#        type: string
 externalDocs:
   description: Find out more about zigzag
   url: 'http://docs.zigzag.fun'
