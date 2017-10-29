@@ -108,7 +108,7 @@ paths:
           description: Feedback not found
       security:
         - api_key: []
-  '/feedback/reply/{uuid}':
+  '/feedback/{uuid}/reply/':
     put:
       tags:
         - feedback
