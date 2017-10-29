@@ -151,7 +151,7 @@ paths:
         - feedback
       summary: Returns a list of feedback objects
       description: Performs a search and returns the results as a list of feedback objects. If consumers provide a search term, the results will have feedbacks contain The search can be filtered by type, sender and/or receiver and limited to a specific time frame.
-      operationId: reportFeedback
+      operationId: searchFeedback
       consumes:
         - application/json
         - application/x-www-form-urlencoded
@@ -170,7 +170,7 @@ paths:
               sender:
                 description: Slack username of a sender. If provided, the results will only contain with fedbacks sent by this sender.
                 type: string
-                format: regex 
+                format: regex
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: juan
               receiver:
@@ -528,7 +528,7 @@ definitions:
   FeedbackSearchResults:
     type: object
     properties:
-      totalPages: 
+      totalPages:
         type: integer
         description: Number of total pages
         minimum: 1
