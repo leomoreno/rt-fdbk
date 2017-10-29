@@ -1,0 +1,5 @@
+# DynamoDB
+DynamoDB:
+  endPoint: "http://localhost:8000/"
+  region: "dev"
+  table: "zig_zag_dev"
