@@ -195,6 +195,16 @@ paths:
                 type: string
                 format: date
                 example: '2017-04-20'
+              sortBy: 
+                description: Name of the field to sort by
+                type: string
+                enum: [created, sender, receiver, message, reply]
+                default: created
+              sortDirection:
+                description: Direction of the sort
+                type: string
+                enum: [ascendant, descendant]
+                default: ascendant
               resultsPerPage: 
                 description: Number of results per page
                 type: integer
