@@ -338,6 +338,103 @@ paths:
           description: Invalid username supplied
         '404':
           description: User not found
+  '/report/users':
+    get:
+      tags:
+        - reports
+      summary: Generates a report of users given a time frame
+      description: The report contains the list of users that sent or received at least one feedback in the specified period with a summary of the number of feedbacks sent or received by type. 
+      operationId: usersReport
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema: 
+            type: object
+            properties:
+              fromDate: 
+                description: Start date of the report. If not provided, the beginning of times is assumed
+                type: string
+                format: date
+              toDate:
+                description: End date of the report. If not provided, today's date will be assumed.
+                type: string
+                format: date
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 4932252f-84ac-4b4c-9ddf-882cf045e6b8
+                email:
+                  type: string
+                  format: email
+                  example: juan@example.com
+                slackUsername:
+                  type: string
+                  example: juan
+                  format: regex 
+                  pattern: ^[a-z0-9][a-z0-9._-]*$
+                firstName:
+                  type: string
+                  example: Pedro
+                lastName:
+                  type: string
+                  example: Pérez
+                totalPositiveFeedback: 
+                  type: integer
+                totalNegativeFeedback: 
+                  type: integer
+      security:
+        - api_key: []
+  '/report/feedbacks':
+    get:
+      tags:
+        - reports
+      summary: Generates a report of feedbacks given a time frame
+      description: The report contains a summary of feedback in a given time frame, grouped by type.
+      operationId: feedbackReport
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema: 
+            type: object
+            properties:
+              fromDate: 
+                description: Start date of the report. If not provided, the beginning of times is assumed
+                type: string
+                format: date
+              toDate:
+                description: End date of the report. If not provided, today's date will be assumed.
+                type: string
+                format: date
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: object
+            properties:
+              positiveFeedback: 
+                type: integer
+              negativeFeedback: 
+                type: integer
+      security:
+        - api_key: []
 securityDefinitions:
   zigzag_auth:
     type: oauth2
@@ -372,8 +469,10 @@ definitions:
         pattern: ^[a-z0-9][a-z0-9._-]*$
       firstName:
         type: string
+        example: Pedro
       lastName:
         type: string
+        example: Pérez
       password:
         type: string
         minLength: 8
