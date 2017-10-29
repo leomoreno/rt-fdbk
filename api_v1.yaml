@@ -1,451 +1,414 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "This is the v1 of rt-fbk tool."
-  version: "0.0.1"
-  title: "RT-FBK"
+  description: This is the v1 of zigzag.
+  version: 0.0.1
+  title: Zigzag
   contact:
-    email: "leonardo.moreno@zagalabs.com"
+    email: leonardo.moreno@zagalabs.com
   license:
-    name: "Apache 2.0"
+    name: Apache 2.0
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "rtfbk.zagalabs.com"
-basePath: "/v1"
+host: api.zigzag.fun
+basePath: /v1
 tags:
-- name: "fbk"
-  description: "Operations about Feedbacks"
-  externalDocs:
-    description: "Find out more"
-    url: "http://docs.rt-fdbk.io/fdbk"
-- name: "user"
-  description: "Operations about user"
-  externalDocs:
-    description: "Find out more about our store"
-    url: "http://docs.rt-fdbk.io/user"
+  - name: feedback
+    description: Feedback operations
+    externalDocs:
+      description: Find out more
+      url: "http://docs.zigzag.fun/feedback"
+  - name: user
+    description: User operations
+    externalDocs:
+      description: Find out more
+      url: "http://docs.zigzag.fun/user"
 schemes:
-- "http"
+  - http
 paths:
   /fbk:
     post:
       tags:
-      - "fbk"
-      summary: "Add a new fbk"
-      description: "Creates a new Feedback"
-      operationId: "addFbkWithJson"
+        - feedback
+      summary: Creates a feedback
+      description: Sends a zigzag from a sender to a receiver
+      operationId: createFeedback
       consumes:
-      - "application/json"
+        - application/json
+        - application/x-www-form-urlencoded
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Fbk object that needs to be added"
-        required: true
-        schema:
-          $ref: "#/definitions/Feedback"
-      responses:
-        400:
-          description: "Validation exception"
-        200:
-          description: "Successful operation"
+        - name: body
+          in: body
           schema:
-            $ref: "#/definitions/Feedback"
-      security:
-      - fbkstore_auth:
-        - "write:fbks"
-        - "read:fbks"
-    put:
-      tags:
-      - "fbk"
-      summary: "Creates a feedback with form data"
-      description: "Support for feedback creation through form data"
-      operationId: "addFbkWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "sender"
-        in: "formData"
-        description: "Sender of the feedback"
-        required: true
-        type: "string"
-      - name: "receiver"
-        in: "formData"
-        description: "Receiver of the feedback"
-        required: true
-        type: "string"
-      - name: "type"
-        in: "formData"
-        description: "Type of Feedback"
-        required: true
-        type: "string"
-        enum:
-        - "negative"
-        - "positive"
-        collectionFormat: "multi"
-      - name: "message"
-        in: "formData"
-        description: "Feedback message"
-        required: true
-        type: "string"
+            type: object
+            properties:
+              sender:
+                description: Slack username of the sender
+                type: string
+                format: regex
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: juan
+              receiver:
+                description: Slack username of the receiver
+                type: string
+                format: regex
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: pedro
+              type:
+                description: Type of feedback
+                type: string
+                enum:
+                  - ':)'
+                  - ':('
+              message:
+                description: Feedback message
+                type: string
+                maxLength: 140
+                example: u so nice!
+            required:
+              - sender
+              - receiver
+              - type
+              - message
       responses:
-        400:
-          description: "Validation exception"
-        200:
-          description: "Successful operation"
+        '200':
+          description: Successful operation
           schema:
-            $ref: "#/definitions/Feedback"
+            $ref: '#/definitions/Feedback'
+        '400':
+          description: Validation exception
       security:
-      - fbkstore_auth:
-        - "write:fbks"
-        - "read:fbks"
-  /fbk/{uuid}:
+        - zigzag_auth:
+            - 'write:zigzags'
+            - 'read:zigzags'
+  '/feedback/{uuid}':
     get:
       tags:
-      - "fbk"
-      summary: "Feedback details by ID"
-      description: "Returns a single Feedback"
-      operationId: "getFbkById"
+        - feedback
+      summary: Get feedback details by ID
+      description: Returns a Feedback object given an ID
+      operationId: readFeedbackById
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "uuid"
-        in: "path"
-        description: "ID of Feedback to return"
-        required: true
-        type: "string"
-        format: "uuid"
+        - name: uuid
+          in: path
+          description: ID of feedback to return
+          required: true
+          type: string
+          format: uuid
       responses:
-        200:
-          description: "successful operation"
+        '200':
+          description: successful operation
           schema:
-            $ref: "#/definitions/Feedback"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Fbk not found"
+            $ref: '#/definitions/Feedback'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Feedback not found
       security:
-      - api_key: []
+        - api_key: []
+  '/feedback/reply/{uuid}':
     put:
       tags:
-      - "fbk"
-      summary: "Updates a Feedback with form data"
-      description: ""
-      operationId: "updateFbkWithForm"
+        - feedback
+      summary: Get feedback details by ID
+      description: Returns a Feedback object given an ID
+      operationId: replyFeedbackById
       consumes:
-      - "application/x-www-form-urlencoded"
+        - application/json
+        - application/x-www-form-urlencoded
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/json
       parameters:
-      - name: "uuid"
-        in: "path"
-        description: "ID of Feedback that needs to be updated"
-        required: true
-        type: "string"
-        format: "uuid"
-      - name: "sender"
-        in: "formData"
-        description: "Sender of the feedback"
-        required: true
-        type: "string"
-      - name: "receiver"
-        in: "formData"
-        description: "Receiver of the feedback"
-        required: true
-        type: "string"
-      - name: "type"
-        in: "formData"
-        description: "Type of Feedback"
-        required: true
-        type: "string"
-        enum:
-        - "negative"
-        - "positive"
-        collectionFormat: "multi"
-      - name: "message"
-        in: "formData"
-        description: "Feedback message"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid input"
-        404:
-          description: "Fbk not found"
-        200:
-          description: "Successful operation"
+        - name: uuid
+          in: path
+          description: ID of feedback to return
+          required: true
+          type: string
+          format: uuid
+        - name: body
+          in: body
           schema:
-            $ref: "#/definitions/Feedback"
-      security:
-      - fbkstore_auth:
-        - "write:fbks"
-        - "read:fbks"
-    delete:
-      tags:
-      - "fbk"
-      summary: "Deletes a fbk"
-      description: ""
-      operationId: "deleteFbk"
-      produces:
-      - "application/xml"
-      - "application/json"
-      parameters:
-      - name: "uuid"
-        in: "path"
-        description: "Fbk id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
+            description: Feedback reply
+            type: string
+            maxLength: 140
+            example: thanks for the feedback!
       responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Fbk not found"
-        200:
-          description: "Successful operation"
+        '200':
+          description: successful operation
           schema:
-            $ref: "#/definitions/ApiResponse"
+            $ref: '#/definitions/Feedback'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Feedback not found
       security:
-      - fbkstore_auth:
-        - "write:fbks"
-        - "read:fbks"
+        - api_key: []
   /user:
     post:
       tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
+        - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      consumes:
+        - application/json
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
+        - in: body
+          name: body
+          description: Created user object
+          required: true
+          schema:
+            $ref: '#/definitions/User'
       responses:
         default:
-          description: "successful operation"
+          description: successful operation
   /user/createWithList:
     post:
       tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
+        - user
+      summary: Creates list of users with given input array
+      description: ''
+      operationId: createUsersWithListInput
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
+        - in: body
+          name: body
+          description: List of user object
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
       responses:
         default:
-          description: "successful operation"
+          description: successful operation
   /user/login:
     get:
       tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
+        - user
+      summary: Logs user into the system
+      description: ''
+      operationId: loginUser
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          type: string
       responses:
-        200:
-          description: "successful operation"
+        '200':
+          description: successful operation
           schema:
-            type: "string"
+            type: string
           headers:
             X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
+              type: integer
+              format: int32
+              description: calls per hour allowed by the user
             X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-        400:
-          description: "Invalid username/password supplied"
+              type: string
+              format: date-time
+              description: date in UTC when token expires
+        '400':
+          description: Invalid username/password supplied
   /user/logout:
     get:
       tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
+        - user
+      summary: Logs out current logged in user session
+      description: ''
+      operationId: logoutUser
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters: []
       responses:
         default:
-          description: "successful operation"
-  /user/{username}:
+          description: successful operation
+  '/user/{username}':
     get:
       tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
+        - user
+      summary: Get user by user name
+      description: ''
+      operationId: getUserByName
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
+        - name: username
+          in: path
+          description: 'The name that needs to be fetched. Use user1 for testing. '
+          required: true
+          type: string
       responses:
-        200:
-          description: "successful operation"
+        '200':
+          description: successful operation
           schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
+            $ref: '#/definitions/User'
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
     put:
       tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
+        - user
+      summary: Updated user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
+        - name: username
+          in: path
+          description: name that need to be updated
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Updated user object
+          required: true
+          schema:
+            $ref: '#/definitions/User'
       responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
+        '400':
+          description: Invalid user supplied
+        '404':
+          description: User not found
     delete:
       tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
+        - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
       produces:
-      - "application/xml"
-      - "application/json"
+        - application/xml
+        - application/json
       parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
+        - name: username
+          in: path
+          description: The name that needs to be deleted
+          required: true
+          type: string
       responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
 securityDefinitions:
-  fbkstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://fdbk.swagger.io/oauth/dialog"
-    flow: "implicit"
+  zigzag_auth:
+    type: oauth2
+    authorizationUrl: 'http://fdbk.swagger.io/oauth/dialog'
+    flow: implicit
     scopes:
-      write:fbks: "modify Feedbacks in your account"
-      read:fbks: "read your Feedbacks"
+      'write:zigzags': modify zigzags in your account
+      'read:zigzags': read your zigzags
   api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
+    type: apiKey
+    name: api_key
+    in: header
 definitions:
-# reportes
   User:
-    type: "object"
-    properties:
-      uuid:
-        type: "string"
-        format: "uuid"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-  Feedback:
-    type: "object"
+    type: object
     required:
-    - "sender"
-    - "receiver"
-    - "category"
-    - "message"
+      - uuid
+      - slackUsername
     properties:
       uuid:
-        type: "string"
-        format: "uuid"
-      sender:
-        $ref: "#/definitions/User"
-      receiver:
-        $ref: "#/definitions/User"
-      category:
-        type: "string"
-        enum:
-        - "negative"
-        - "positive"
-      message:
-        type: "string"
+        type: string
+        format: uuid
+        example: 4932252f-84ac-4b4c-9ddf-882cf045e6b8
+      email:
+        type: string
+        format: email
+        example: juan@example.com
+      slackUsername:
+        type: string
+        example: juan
+        format: regex
+        pattern: ^[a-z0-9][a-z0-9._-]*$
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+        minLength: 8
+        pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$
+        example: This is a strong p@ssw0rd
+      created:
+        type: string
+        format: date-time
+        example: '2009-11-13T10:39:35Z'
+      updated:
+        type: string
+        format: date-time
+        example: '2009-11-13T10:39:35Z'
     xml:
-      name: "Feedback"
+      name: User
+  Feedback:
+    type: object
+    required:
+      - sender
+      - receiver
+      - type
+      - message
+    properties:
+      uuid:
+        type: string
+        format: uuid
+        example: 8932252f-84ac-4b4c-9ddf-882cf045e6b8
+      sender:
+        $ref: '#/definitions/User'
+      receiver:
+        $ref: '#/definitions/User'
+      type:
+        type: string
+        enum:
+          - :(
+          - :)
+      message:
+        type: string
+        maxLength: 140
+      reply:
+        type: string
+        maxLength: 140
+      created:
+        type: string
+        format: date-time
+        example: '2009-11-13T10:39:35Z'
+      updated:
+        type: string
+        format: date-time
+        example: '2009-11-13T10:39:35Z'
+    xml:
+      name: zigzag
   ApiResponse:
-    type: "object"
+    type: object
     properties:
       code:
-        type: "integer"
-        format: "int32"
+        type: integer
+        format: int32
       type:
-        type: "string"
+        type: string
       message:
-        type: "string"
+        type: string
 externalDocs:
-  description: "Find out more about rt-fbk"
-  url: "http://docs.rt-fbk.io"
+  description: Find out more about zigzag
+  url: 'http://docs.zigzag.fun'
