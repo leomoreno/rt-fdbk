@@ -164,7 +164,6 @@ paths:
         '200':
           description: a pet to be returned
           schema:
-            $ref: '#definitions/SlackResponse'
             $ref: '#/definitions/SlackResponse'
         '400':
           description: Validation exception
