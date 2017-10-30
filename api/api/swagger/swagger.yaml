@@ -79,6 +79,7 @@ paths:
         '400':
           description: Validation exception
       security:
+        - api_key: []
         - zigzag_auth:
             - 'write:zigzags'
             - 'read:zigzags'
@@ -167,9 +168,7 @@ paths:
         '400':
           description: Validation exception
       security:
-        - zigzag_auth:
-            - 'write:zigzags'
-            - 'read:zigzags'
+        - api_key: []
   '/feedback/{uuid}':
     x-swagger-router-controller: feedback
     get:
