@@ -80,9 +80,95 @@ paths:
           description: Validation exception
       security:
         - api_key: []
-        # - zigzag_auth:
-        #     - 'write:zigzags'
-        #     - 'read:zigzags'
+        - zigzag_auth:
+            - 'write:zigzags'
+            - 'read:zigzags'
+  '/feedback/viaslack':
+    post:
+      tags:
+        - feedback
+      summary: Creates a feedback via Slack
+      description: "Sends a feedback from a sender to a receiver and sends a copy to Human Resources. This endpoint is triggered via Slack Commands. Learn more: https://api.slack.com/custom-integrations/slash-commands"
+      operationId: createFeedbackViaSlack
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              token:
+                description: Token to verify the request came from the Slack team
+                type: string
+                example: gIkuvaNzQIHg97ATvDxqgjtO
+              team_id:
+                description: The Slack team ID. Used to verify whether the team_id matches a team that has approved your command for usage.
+                type: string
+                example: T0001
+              team_domain:
+                description: The Slack team's domain
+                type: string
+                example: example
+              channel_id:
+                description: The ID of the channel the message was sent from
+                type: string
+                example: C2147483705
+              channel_name:
+                description: The name of the channel the message was sent from
+                type: string
+                example: test
+              user_id:
+                description: The ID of the Slack user that sent the message
+                type: string
+                example: U2147483697
+              user_name:
+                description: Slack username of the sender
+                type: string
+                format: regex
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: juan
+              text:
+                description: Text sent by the Slack user. It should contain one user mention and one :) or :( – Also, the stripped-off message should not be longer than 140 characters.
+                type: string
+                format: regex
+                #pattern: @todo validate length and only one instance of ":)" or ":(" and one mention
+                example: "<@U012ABCDEF|leo> don't wake me up at night anymore :( please!!"
+              response_url:
+                description: "URL to respond in case you want to provide additional command response messages, or if you're unable to immediately respond to a command within 3000 milliseconds, use the specific `response_url`"
+                type: string
+                format: uri
+                example: https://hooks.slack.com/commands/1234/5678
+              # The following are not used but sent by Slack:
+              #enterprise_id:
+              #  description: The ID of the enterprise (not used)
+              #  type: string
+              #  example: E0001
+              #enterprise_name:
+              #  description: The name of the enterprise (not used)
+              #  type: string
+              #  example: Globular%20Construct%20Inc
+            required:
+              - token
+              - team_id
+              - team_domain
+              - channel_id
+              - channel_name
+              - user_id
+              - user_name
+              - text
+              - response_url
+      responses:
+        '200':
+          description: a pet to be returned
+          schema:
+            $ref: '#/definitions/SlackResponse'
+        '400':
+          description: Validation exception
+      security:
+        - api_key: []
   '/feedback/{uuid}':
     x-swagger-router-controller: feedback
     get:
@@ -548,6 +634,25 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Feedback'
+  SlackResponse:
+    type: object
+    properties:
+      response_type:
+        type: string
+        description: 'By default, the response messages sent to commands will only be visible to the user that issued the command (we call these "ephemeral" messages). However, if you would like the response to be visible to all members of the channel in which the user typed the command, you can add a `response_type` of `in_channel` to the JSON response.'
+        example: ephemeral
+        enum: 
+          - ephemeral
+          - in_channel
+        default: ephemeral
+      text: 
+        description: Actual response
+        type: string
+        example: Partly cloudy today and tomorrow
+      # @todo: define the attachment element
+      #attachment: 
+      #  type: array
+      #  items: 
 #  ApiResponse:
 #    type: object
 #    properties:
