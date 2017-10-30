@@ -301,7 +301,7 @@ paths:
                 default: 50
                 minimum: 1
               page:
-                description: Page number 
+                description: Page number
                 type: integer
                 default: 50
                 minimum: 1
@@ -317,7 +317,7 @@ paths:
       tags:
         - user
       summary: Creates a user
-      description: Use this to add a new user 
+      description: Use this to add a new user
       operationId: createUser
       consumes:
         - application/json
@@ -541,7 +541,7 @@ securityDefinitions:
 definitions:
   User:
     type: object
-    required: 
+    required:
       - uuid
       - slackUsername
     properties:
