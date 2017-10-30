@@ -41,7 +41,7 @@ paths:
         - name: body
           in: body
           schema:
-            type:object
+            type: object
             properties:
               sender:
                 description: Slack username of the sender
@@ -97,7 +97,7 @@ paths:
         - name: body
           in: body
           schema:
-            type:object
+            type: object
             properties:
               token:
                 description: Token to verify the request came from the Slack team
@@ -251,7 +251,7 @@ paths:
         - name: body
           in: body
           schema:
-            type:object
+            type: object
             properties:
               keyword:
                 description: Search term to look for in messages and replies.
@@ -297,12 +297,12 @@ paths:
                 default: ascendant
               resultsPerPage:
                 description: Number of results per page
-                type:integer
+                type: integer
                 default: 50
                 minimum: 1
               page:
                 description: Page number 
-                type:integer
+                type: integer
                 default: 50
                 minimum: 1
       responses:
@@ -443,7 +443,7 @@ paths:
         - name: body
           in: body
           schema:
-            type:object
+            type: object
             properties:
               fromDate:
                 description: Start date of the report. If not provided, the beginning of times is assumed
@@ -459,7 +459,7 @@ paths:
           schema:
             type: array
             items:
-              type:object
+              type: object
               properties:
                 uuid:
                   type: string
@@ -480,10 +480,10 @@ paths:
                 lastName:
                   type: string
                   example: Pérez
-                totalPositiveFeedback: 
-                  type:integer
+                totalPositiveFeedback:
+                  type: integer
                 totalNegativeFeedback:
-                  type:integer
+                  type: integer
       security:
         - api_key: []
   '/report/feedbacks':
@@ -502,7 +502,7 @@ paths:
         - name: body
           in: body
           schema:
-            type:object
+            type: object
             properties:
               fromDate:
                 description: Start date of the report. If not provided, the beginning of times is assumed
@@ -516,31 +516,31 @@ paths:
         '200':
           description: successful operation
           schema:
-            type:object
+            type: object
             properties:
-              positiveFeedback: 
-                type:integer
-              negativeFeedback: 
-                type:integer
+              positiveFeedback:
+                type: integer
+              negativeFeedback:
+                type: integer
       security:
         - api_key: []
   /swagger:
     x-swagger-pipe: swagger_raw
 securityDefinitions:
   zigzag_auth:
-    type:oauth2
+    type: oauth2
     authorizationUrl: 'http://fdbk.swagger.io/oauth/dialog'
     flow: implicit
     scopes:
       'write:zigzags': modify zigzags in your account
       'read:zigzags': read your zigzags
   api_key:
-    type:apiKey
+    type: apiKey
     name: api_key
     in: header
 definitions:
   User:
-    type:object
+    type: object
     required: 
       - uuid
       - slackUsername
@@ -580,7 +580,7 @@ definitions:
     xml:
       name: User
   Feedback:
-    type:object
+    type: object
     required:
       - sender
       - receiver
@@ -618,15 +618,15 @@ definitions:
       name: zigzag
 # @todo: Move to the endpoint definition. Need to find out why the parser won't let me.
   FeedbackSearchResults:
-    type:object
+    type: object
     properties:
       totalPages:
-        type:integer
+        type: integer
         description: Number of total pages
         minimum: 1
         example: 1
       pageNumber:
-        type:integer
+        type: integer
         description: Current page number
         minimum: 1
         example: 1
@@ -636,7 +636,7 @@ definitions:
         items:
           $ref: '#/definitions/Feedback'
   SlackResponse:
-    type:object
+    type: object
     properties:
       response_type:
         type: string
@@ -655,10 +655,10 @@ definitions:
       #  type: array
       #  items: 
 #  ApiResponse:
-#    type:object
+#    type: object
 #    properties:
 #      code:
-#        type:integer
+#        type: integer
 #        format: int32
 #      type:
 #        type: string
