@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-host: api.zigzag.fun
+host: localhost:10010
 basePath: /v1
 tags:
   - name: feedback
