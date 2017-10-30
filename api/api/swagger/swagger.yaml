@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-host: localhost:10010
+host: api.zigzag.fun
 basePath: /v1
 tags:
   - name: feedback
@@ -41,29 +41,29 @@ paths:
         - name: body
           in: body
           schema:
-            type: object
+            type:object
             properties:
               sender:
                 description: Slack username of the sender
-                type: string
+                type:string
                 format: regex
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: juan
               receiver:
                 description: Slack username of the receiver
-                type: string
+                type:string
                 format: regex
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: pedro
               type:
                 description: Type of feedback
-                type: string
+                type:string
                 enum:
                   - ':)'
                   - ':('
               message:
                 description: Feedback message
-                type: string
+                type:string
                 maxLength: 140
                 example: u so nice!
             required:
@@ -79,10 +79,97 @@ paths:
         '400':
           description: Validation exception
       security:
-        - api_key: []
-        # - zigzag_auth:
-        #     - 'write:zigzags'
-        #     - 'read:zigzags'
+        - zigzag_auth:
+            - 'write:zigzags'
+            - 'read:zigzags'
+  '/feedback/viaslack':
+    post:
+      tags:
+        - feedback
+      summary: Creates a feedback via Slack
+      description: "Sends a feedback from a sender to a receiver and sends a copy to Human Resources. This endpoint is triggered via Slack Commands. Learn more: https://api.slack.com/custom-integrations/slash-commands"
+      operationId: createFeedbackViaSlack
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type:object
+            properties:
+              token:
+                description: Token to verify the request came from the Slack team
+                type:string
+                example: gIkuvaNzQIHg97ATvDxqgjtO
+              team_id:
+                description: The Slack team ID. Used to verify whether the team_id matches a team that has approved your command for usage.
+                type:string
+                example: T0001
+              team_domain:
+                description: The Slack team's domain
+                type:string
+                example: example
+              channel_id:
+                description: The ID of the channel the message was sent from
+                type:string
+                example: C2147483705
+              channel_name:
+                description: The name of the channel the message was sent from
+                type:string
+                example: test
+              user_id:
+                description: The ID of the Slack user that sent the message
+                type:string
+                example: U2147483697
+              user_name:
+                description: Slack username of the sender
+                type:string
+                format: regex
+                pattern: ^[a-z0-9][a-z0-9._-]*$
+                example: juan
+              text:
+                description: Text sent by the Slack user. It should contain one user mention and one :) or :( – Also, the stripped-off message should not be longer than 140 characters.
+                type:string
+                format: regex
+                #pattern: @todo validate length and only one instance of ":)" or ":(" and one mention
+                example: "<@U012ABCDEF|leo> don't wake me up at night anymore :( please!!"
+              response_url:
+                description: "URL to respond in case you want to provide additional command response messages, or if you're unable to immediately respond to a command within 3000 milliseconds, use the specific `response_url`"
+                type:string
+                format: uri
+                example: https://hooks.slack.com/commands/1234/5678
+              # The following are not used but sent by Slack:
+              #enterprise_id:
+              #  description: The ID of the enterprise (not used)
+              #  type:string
+              #  example: E0001
+              #enterprise_name:
+              #  description: The name of the enterprise (not used)
+              #  type:string
+              #  example: Globular%20Construct%20Inc
+            required:
+              - token
+              - team_id
+              - team_domain
+              - channel_id
+              - channel_name
+              - user_id
+              - user_name
+              - text
+              - response_url
+      responses:
+        '200':
+          description: a pet to be returned
+          schema:
+            $ref: '#definitions/SlackResponse'
+        '400':
+          description: Validation exception
+      security:
+        - zigzag_auth:
+            - 'write:zigzags'
+            - 'read:zigzags'
   '/feedback/{uuid}':
     x-swagger-router-controller: feedback
     get:
@@ -98,7 +185,7 @@ paths:
           in: path
           description: ID of feedback to return
           required: true
-          type: string
+          type:string
           format: uuid
       responses:
         '200':
@@ -128,13 +215,13 @@ paths:
           in: path
           description: ID of feedback to return
           required: true
-          type: string
+          type:string
           format: uuid
         - name: body
           in: body
           schema:
             description: Feedback reply
-            type: string
+            type:string
             maxLength: 140
             example: thanks for the feedback!
       responses:
@@ -164,58 +251,58 @@ paths:
         - name: body
           in: body
           schema:
-            type: object
+            type:object
             properties:
               keyword:
                 description: Search term to look for in messages and replies.
-                type: string
+                type:string
                 example: keyword
               sender:
                 description: Slack username of a sender. If provided, the results will only contain with fedbacks sent by this sender.
-                type: string
+                type:string
                 format: regex
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: juan
               receiver:
                 description: Slack username of a receiver. If provided, the results will only contain fedbacks received by this sender.
-                type: string
+                type:string
                 format: regex
                 pattern: ^[a-z0-9][a-z0-9._-]*$
                 example: pedro
               type:
                 description: Type of feedback. If provided, the results will only contain this type of fedbacks.
-                type: string
+                type:string
                 enum:
                   - ':)'
                   - ':('
               fromDate:
                 description: If provided, the results will only contain this fedbacks sent.
-                type: string
+                type:string
                 format: date
                 example: '2016-04-20'
               toDate:
                 description: If provided, the results will only contain this fedbacks sent.
-                type: string
+                type:string
                 format: date
                 example: '2017-04-20'
               sortBy:
                 description: Name of the field to sort by
-                type: string
+                type:string
                 enum: [created, sender, receiver, message, reply]
                 default: created
               sortDirection:
                 description: Direction of the sort
-                type: string
+                type:string
                 enum: [ascendant, descendant]
                 default: ascendant
               resultsPerPage:
                 description: Number of results per page
-                type: integer
+                type:integer
                 default: 50
                 minimum: 1
               page:
-                description: Page number
-                type: integer
+                description: Page number 
+                type:integer
                 default: 50
                 minimum: 1
       responses:
@@ -225,12 +312,13 @@ paths:
             $ref: '#/definitions/FeedbackSearchResults'
       security:
         - api_key: []
+  
   /user:
     post:
       tags:
         - user
       summary: Creates a user
-      description: Use this to add a new user
+      description: Use this to add a new user 
       operationId: createUser
       consumes:
         - application/json
@@ -263,7 +351,7 @@ paths:
           description: List of user object
           required: true
           schema:
-            type: array
+            type:array
             items:
               $ref: '#/definitions/User'
       responses:
@@ -284,7 +372,7 @@ paths:
           in: path
           description: 'The name that needs to be fetched. Use user1 for testing.'
           required: true
-          type: string
+          type:string
       responses:
         '200':
           description: successful operation
@@ -308,7 +396,7 @@ paths:
           in: path
           description: name that need to be updated
           required: true
-          type: string
+          type:string
         - in: body
           name: body
           description: Updated user object
@@ -334,7 +422,7 @@ paths:
           in: path
           description: The name that needs to be deleted
           required: true
-          type: string
+          type:string
       responses:
         '400':
           description: Invalid username supplied
@@ -356,47 +444,47 @@ paths:
         - name: body
           in: body
           schema:
-            type: object
+            type:object
             properties:
               fromDate:
                 description: Start date of the report. If not provided, the beginning of times is assumed
-                type: string
+                type:string
                 format: date
               toDate:
                 description: End date of the report. If not provided, today's date will be assumed.
-                type: string
+                type:string
                 format: date
       responses:
         '200':
           description: Successful operation
           schema:
-            type: array
+            type:array
             items:
-              type: object
+              type:object
               properties:
                 uuid:
-                  type: string
+                  type:string
                   format: uuid
                   example: 4932252f-84ac-4b4c-9ddf-882cf045e6b8
                 email:
-                  type: string
+                  type:string
                   format: email
                   example: juan@example.com
                 slackUsername:
-                  type: string
+                  type:string
                   example: juan
                   format: regex
                   pattern: ^[a-z0-9][a-z0-9._-]*$
                 firstName:
-                  type: string
+                  type:string
                   example: Pedro
                 lastName:
-                  type: string
+                  type:string
                   example: Pérez
-                totalPositiveFeedback:
-                  type: integer
+                totalPositiveFeedback: 
+                  type:integer
                 totalNegativeFeedback:
-                  type: integer
+                  type:integer
       security:
         - api_key: []
   '/report/feedbacks':
@@ -415,85 +503,85 @@ paths:
         - name: body
           in: body
           schema:
-            type: object
+            type:object
             properties:
               fromDate:
                 description: Start date of the report. If not provided, the beginning of times is assumed
-                type: string
+                type:string
                 format: date
               toDate:
                 description: End date of the report. If not provided, today's date will be assumed.
-                type: string
+                type:string
                 format: date
       responses:
         '200':
           description: successful operation
           schema:
-            type: object
+            type:object
             properties:
-              positiveFeedback:
-                type: integer
-              negativeFeedback:
-                type: integer
+              positiveFeedback: 
+                type:integer
+              negativeFeedback: 
+                type:integer
       security:
         - api_key: []
   /swagger:
     x-swagger-pipe: swagger_raw
 securityDefinitions:
   zigzag_auth:
-    type: oauth2
+    type:oauth2
     authorizationUrl: 'http://fdbk.swagger.io/oauth/dialog'
     flow: implicit
     scopes:
       'write:zigzags': modify zigzags in your account
       'read:zigzags': read your zigzags
   api_key:
-    type: apiKey
+    type:apiKey
     name: api_key
     in: header
 definitions:
   User:
-    type: object
-    required:
+    type:object
+    required: 
       - uuid
       - slackUsername
     properties:
       uuid:
-        type: string
+        type:string
         format: uuid
         example: 4932252f-84ac-4b4c-9ddf-882cf045e6b8
       email:
-        type: string
+        type:string
         format: email
         example: juan@example.com
       slackUsername:
-        type: string
+        type:string
         example: juan
         format: regex
         pattern: ^[a-z0-9][a-z0-9._-]*$
       firstName:
-        type: string
+        type:string
         example: Pedro
       lastName:
-        type: string
+        type:string
         example: Pérez
       password:
-        type: string
+        type:string
         minLength: 8
         pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$
         example: This is a strong p@ssw0rd
       created:
-        type: string
+        type:string
         format: date-time
         example: '2009-11-13T10:39:35Z'
       updated:
-        type: string
+        type:string
         format: date-time
         example: '2009-11-13T10:39:35Z'
     xml:
       name: User
   Feedback:
-    type: object
+    type:object
     required:
       - sender
       - receiver
@@ -501,7 +589,7 @@ definitions:
       - message
     properties:
       uuid:
-        type: string
+        type:string
         format: uuid
         example: 8932252f-84ac-4b4c-9ddf-882cf045e6b8
       sender:
@@ -509,55 +597,74 @@ definitions:
       receiver:
         $ref: '#/definitions/User'
       type:
-        type: string
+        type:string
         enum:
           - :(
           - :)
       message:
-        type: string
+        type:string
         maxLength: 140
       reply:
-        type: string
+        type:string
         maxLength: 140
       created:
-        type: string
+        type:string
         format: date-time
         example: '2009-11-13T10:39:35Z'
       updated:
-        type: string
+        type:string
         format: date-time
         example: '2009-11-13T10:39:35Z'
     xml:
       name: zigzag
 # @todo: Move to the endpoint definition. Need to find out why the parser won't let me.
   FeedbackSearchResults:
-    type: object
+    type:object
     properties:
       totalPages:
-        type: integer
+        type:integer
         description: Number of total pages
         minimum: 1
         example: 1
       pageNumber:
-        type: integer
+        type:integer
         description: Current page number
         minimum: 1
         example: 1
         default: 50
       results:
-        type: array
+        type:array
         items:
           $ref: '#/definitions/Feedback'
+  SlackResponse:
+    type:object
+    properties:
+      response_type:
+        type:string
+        description: 'By default, the response messages sent to commands will only be visible to the user that issued the command (we call these "ephemeral" messages). However, if you would like the response to be visible to all members of the channel in which the user typed the command, you can add a `response_type` of `in_channel` to the JSON response.'
+        example: ephemeral
+        enum: 
+          - ephemeral
+          - in_channel
+        default: ephemeral
+      text: 
+        description: Actual response
+        type:string
+        example: Partly cloudy today and tomorrow
+      # @todo: define the attachment element
+      #attachment: 
+      #  type:array
+      #  items: 
 #  ApiResponse:
-#    type: object
+#    type:object
 #    properties:
 #      code:
-#        type: integer
+#        type:integer
 #        format: int32
 #      type:
-#        type: string
+#        type:string
 #      message:
-#        type: string
+#        type:string
 externalDocs:
   description: Find out more about zigzag
   url: 'http://docs.zigzag.fun'
