@@ -16,8 +16,11 @@
     "supertest": "^1.0.0"
   },
   "scripts": {
-    "start": "node app.js",
+    "prestart": "npm install",
+    "start": "swagger project start",
     "test": "swagger project test",
+    "verify": "swagger project verify",
+    "edit": "swagger project edit",
     "migrations": "node migrations/v1.js"
   }
 }

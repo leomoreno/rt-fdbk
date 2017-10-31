@@ -11,7 +11,7 @@ var config = {
       if ('1234' === scopesOrApiKey) {
           cb(null);
       } else {
-          cb(new Error({ message: 'access denied!' }));
+          cb(new Error('access denied!'));
       }
     }
   }
