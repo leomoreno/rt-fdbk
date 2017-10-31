@@ -84,6 +84,7 @@ paths:
             - 'write:zigzags'
             - 'read:zigzags'
   '/feedback/viaslack':
+    x-swagger-router-controller: feedback
     post:
       tags:
         - feedback
@@ -133,9 +134,9 @@ paths:
               text:
                 description: Text sent by the Slack user. It should contain one user mention and one :) or :( – Also, the stripped-off message should not be longer than 140 characters.
                 type: string
-                format: regex
-                #pattern: @todo validate length and only one instance of ":)" or ":(" and one mention
-                example: "<@U012ABCDEF|leo> don't wake me up at night anymore :( please!!"
+                format: slackCommand
+                pattern: "^(<@\\w+\\|?\\w+>{1})\\s?((?: +\\:\\) +)|(?: +\\:\\( +))(.{1,140})"
+                example: "<@U012ABCDEF|leo> :( don't wake me up at night anymore please!!"
               response_url:
                 description: "URL to respond in case you want to provide additional command response messages, or if you're unable to immediately respond to a command within 3000 milliseconds, use the specific `response_url`"
                 type: string
@@ -167,8 +168,6 @@ paths:
             $ref: '#/definitions/SlackResponse'
         '400':
           description: Validation exception
-      security:
-        - api_key: []
   '/feedback/{uuid}':
     x-swagger-router-controller: feedback
     get:
@@ -641,18 +640,18 @@ definitions:
         type: string
         description: 'By default, the response messages sent to commands will only be visible to the user that issued the command (we call these "ephemeral" messages). However, if you would like the response to be visible to all members of the channel in which the user typed the command, you can add a `response_type` of `in_channel` to the JSON response.'
         example: ephemeral
-        enum: 
+        enum:
           - ephemeral
           - in_channel
         default: ephemeral
-      text: 
+      text:
         description: Actual response
         type: string
         example: Partly cloudy today and tomorrow
       # @todo: define the attachment element
-      #attachment: 
+      #attachment:
       #  type: array
-      #  items: 
+      #  items:
 #  ApiResponse:
 #    type: object
 #    properties:

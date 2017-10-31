@@ -36,14 +36,14 @@ exports.get = function(uuid, cb) {
 exports.post = function(args, cb) {
     exports.initGateWay();
 
-    console.log("Adding a new item...", args.body.value);
+    console.log("Adding a new item...", args);
     return DYNAMO_CLIENT.putItem(
         TABLE_NAME, {
             uuid: uuidv4(),
-            sender: args.body.value.sender,
-            receiver: args.body.value.receiver,
-            type: args.body.value.type,
-            message: args.body.value.message,
+            sender: args.sender,
+            receiver: args.receiver,
+            type: args.type,
+            message: args.message,
             createdAt: new Date().getTime()
         })
         .execute()

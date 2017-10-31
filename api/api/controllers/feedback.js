@@ -10,7 +10,8 @@ const HTTP_CODES = {
 };
 module.exports = {
   getFeedbackById: getFeedbackById,
-  addFeedbackWithJson: addFeedbackWithJson
+  addFeedbackWithJson: addFeedbackWithJson,
+  createFeedbackViaSlack: createFeedbackViaSlack
 };
 
 /*
@@ -20,7 +21,50 @@ module.exports = {
   Param 2: a handle to the response object
  */
 function addFeedbackWithJson(req, res) {
-  const feedback = awsGateway.post(req.swagger.params, (err, data) => {
+  const params = {
+      sender: req.swagger.params.body.value.sender,
+      receiver: req.swagger.params.body.value.receiver,
+      type: req.swagger.params.body.value.type,
+      message: req.swagger.params.body.value.message,
+  };
+  const feedback = awsGateway.post(params, (err, data) => {
+    if (err) {
+        // TODO: custom errors dictionary
+        res.statusCode = HTTP_CODES.BAD_REQUETS;
+        console.error("Error JSON:", JSON.stringify(err, null, 2));
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err, null, 2));
+    } else {
+        console.log("addFeedbackWithJson succeeded:", JSON.stringify(data, null, 2));
+        res.statusCode = HTTP_CODES.OK;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(data, null, 2));
+    }
+  });
+}
+
+function extractFeedbackFromSlackPayload(slackPayload) {
+  const REGEX = {
+    RECEIVER: /^<@\w+\|?(\w+)>{1}/g,
+    TYPE: /(?: +\:\) +)|(?: +\:\( +)/g,
+    MESSAGE: /((?: +\:\) +)|(?: +\:\( +))(.{1,140})/g
+  };
+  const receiver = REGEX.RECEIVER.exec(slackPayload.text)[1];
+  const type = slackPayload.text.match(REGEX.TYPE)[0].trim();
+  const message = REGEX.MESSAGE.exec(slackPayload.text)[2];
+  const sender = slackPayload.user_name;
+  return {
+    sender,
+    receiver,
+    type,
+    message
+  };
+}
+
+function createFeedbackViaSlack(req, res) {
+  const requestParams = req.swagger.params.body.value;
+  const params = extractFeedbackFromSlackPayload(requestParams);
+  const feedback = awsGateway.post(params, (err, data) => {
     if (err) {
         // TODO: custom errors dictionary
         res.statusCode = HTTP_CODES.BAD_REQUETS;

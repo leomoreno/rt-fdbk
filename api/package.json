@@ -17,7 +17,7 @@
   },
   "scripts": {
     "prestart": "npm install",
-    "start": "node app.js",
+    "start": "swagger project start",
     "test": "swagger project test",
     "verify": "swagger project verify",
     "edit": "swagger project edit",
