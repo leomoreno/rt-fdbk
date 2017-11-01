@@ -109,11 +109,8 @@ function replyFeedbackById(req, res) {
     }
 
     if (!err) {
-      console.log("Data:", data);
-      console.log("Reply: ", req.swagger.params.reply.value);
       data.reply = req.swagger.params.reply.value;
-      console.log("Data: ", data);
-
+      
       feedback = awsGateway.update(data, (err, data) => {
         if (!err) {
 
