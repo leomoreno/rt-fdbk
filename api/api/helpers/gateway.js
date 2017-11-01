@@ -60,7 +60,7 @@ exports.post = function(args, cb) {
         });
 }
 
-exports.update = function(args, cb) {
+exports.put = function(args, cb) {
     exports.initGateWay();
 
     console.log("Updating an item...", args.uuid);

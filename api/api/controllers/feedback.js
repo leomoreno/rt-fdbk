@@ -111,7 +111,7 @@ function replyFeedbackById(req, res) {
     if (!err) {
       data.reply = req.swagger.params.reply.value;
       
-      feedback = awsGateway.update(data, (err, data) => {
+      feedback = awsGateway.put(data, (err, data) => {
         if (!err) {
 
           console.log("Update item succeeded:", data);
