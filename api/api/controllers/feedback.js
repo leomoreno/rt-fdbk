@@ -11,7 +11,8 @@ const HTTP_CODES = {
 module.exports = {
   getFeedbackById: getFeedbackById,
   addFeedbackWithJson: addFeedbackWithJson,
-  createFeedbackViaSlack: createFeedbackViaSlack
+  createFeedbackViaSlack: createFeedbackViaSlack,
+  replyFeedbackById: replyFeedbackById
 };
 
 /*
@@ -72,7 +73,7 @@ function createFeedbackViaSlack(req, res) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err, null, 2));
     } else {
-        console.log("addFeedbackWithJson succeeded:", JSON.stringify(data, null, 2));
+        console.log("createFeedbackViaSlack succeeded:", JSON.stringify(data, null, 2));
         res.statusCode = HTTP_CODES.OK;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(data, null, 2));
@@ -96,4 +97,43 @@ function getFeedbackById(req, res) {
           res.end(JSON.stringify(data, null, 2));
       }
     });
+}
+
+
+function replyFeedbackById(req, res) {
+  const feedback = awsGateway.get(req.swagger.params.uuid, (err, data) => {
+    if (data == undefined) {
+        err = {
+          message: 'Feedback does not exists'
+        }
+    }
+
+    if (!err) {
+      console.log("Data:", data);
+      console.log("Reply: ", req.swagger.params.reply.value);
+      data.reply = req.swagger.params.reply.value;
+      console.log("Data: ", data);
+
+      feedback = awsGateway.update(data, (err, data) => {
+        if (!err) {
+
+          console.log("Update item succeeded:", data);
+          
+          res.statusCode = HTTP_CODES.OK;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(data, null, 2));
+        }
+      });
+      
+    } 
+
+    if (err) {
+      //TODO: custom errors dictionary
+      // res.statusCode = 500;
+      console.error("Error JSON:", JSON.stringify(err, null, 2));
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = HTTP_CODES.BAD_REQUETS;
+      res.end(JSON.stringify(err, null, 2));
+    }
+  });
 }
