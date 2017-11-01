@@ -79,7 +79,7 @@ exports.update = function(args, cb) {
                         type: args.type,
                         message: args.message,
                         reply: args.reply,
-                        updated:new Date().getTime()                
+                        updatedAt: new Date().getTime()
                     })
                 .execute()
                 .then(function(data) {
