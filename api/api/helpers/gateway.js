@@ -44,7 +44,10 @@ exports.post = function(args, cb) {
             receiver: args.receiver,
             type: args.type,
             message: args.message,
-            createdAt: new Date().getTime()
+            // @todo: find out why 'reply' is not accepting null or undefined when it should
+            //reply: args.reply,
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime()
         })
         .execute()
         .then(function(data) {
@@ -55,4 +58,42 @@ exports.post = function(args, cb) {
             // console.info(JSON.stringify(e, null, 2));
             cb(e);
         });
+}
+
+exports.put = function(args, cb) {
+    exports.initGateWay();
+
+    console.log("Updating an item...", args.uuid);
+
+    return DYNAMO_CLIENT.getItem(TABLE_NAME)
+        .setHashKey('uuid', args.uuid)
+        .execute()
+        .then(function(data) {
+            DYNAMO_CLIENT.putItem(
+                    TABLE_NAME, 
+                    {
+                        uuid: data.result.uuid,
+                        createdAt: data.result.createdAt,
+                        sender: args.sender,
+                        receiver: args.receiver,
+                        type: args.type,
+                        message: args.message,
+                        reply: args.reply,
+                        updatedAt: new Date().getTime()
+                    })
+                .execute()
+                .then(function(data) {
+                  console.info(JSON.stringify(data, null, 2));
+                  cb(false, data.result);
+                })
+                .fail(function(e) {
+                    console.info(JSON.stringify(e, null, 2));
+                    cb(e);
+                });
+        })
+        .fail(function(e) {
+            console.info(JSON.stringify(e, null, 2));
+            cb(e);
+        });
+    
 }
