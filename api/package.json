@@ -6,18 +6,18 @@
   "keywords": [],
   "author": "",
   "license": "",
-  "main": "app.js",
+  "main": "main.js",
   "dependencies": {
     "express": "^4.12.3",
     "swagger-express-mw": "^0.1.0"
   },
   "devDependencies": {
+    "aws-sdk": "^2.141.0",
     "should": "^7.1.0",
     "supertest": "^1.0.0"
   },
   "scripts": {
-    "prestart": "npm install",
-    "start": "swagger project start",
+    "start": "node main.js",
     "test": "swagger project test",
     "verify": "swagger project verify",
     "edit": "swagger project edit",
