@@ -27,7 +27,7 @@ exports.get = function(uuid, cb) {
         .setHashKey('uuid', uuid.value)
         .execute()
         .then(function(data) {
-            console.info(JSON.stringify(data, null, 2));
+            // console.info(JSON.stringify(data, null, 2));
             cb(false, data.result);
         }).fail(function (e) {
             console.info(JSON.stringify(e, null, 2));
@@ -35,28 +35,17 @@ exports.get = function(uuid, cb) {
         });
 }
 
-exports.post = function(args, cb) {
+exports.post = function(feedback, cb) {
     exports.initGateWay();
-    return DYNAMO_CLIENT.putItem(
-        TABLE_NAME, {
-            uuid: uuidv4(),
-            sender: args.sender,
-            receiver: args.receiver,
-            type: args.type,
-            message: args.message,
-            // @todo: find out why 'reply' is not accepting null or undefined when it should
-            //reply: args.reply,
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime()
-        })
+    return DYNAMO_CLIENT.putItem(TABLE_NAME, feedback)
         .execute()
         .then(function(data) {
-          // console.info(JSON.stringify(data, null, 2));
-          cb(false, data.result);
+          // console.info(`Gateway::post::putItem::Success: ${JSON.stringify(data, null, 2)}`);
+          return cb(false, data.result);
         })
         .fail(function(e) {
-            // console.info(JSON.stringify(e, null, 2));
-            cb(e);
+            console.info(`Gateway::post::putItem::Error: ${JSON.stringify(e, null, 2)}`);
+            return cb(e);
         });
 }
 
@@ -68,11 +57,12 @@ exports.put = function(args, cb) {
     return DYNAMO_CLIENT.getItem(TABLE_NAME)
         .setHashKey('uuid', args.uuid)
         .execute()
-        .then(function(data) {
+        .then(function(itemData) {
+            console.info(`Gateway::put::putItem::Success: ${JSON.stringify(itemData, null, 2)}`);
             DYNAMO_CLIENT.putItem(
-                    TABLE_NAME, 
+                    TABLE_NAME,
                     {
-                        uuid: data.result.uuid,
+                        uuid: itemData.result.uuid,
                         createdAt: data.result.createdAt,
                         sender: args.sender,
                         receiver: args.receiver,
@@ -82,18 +72,19 @@ exports.put = function(args, cb) {
                         updatedAt: new Date().getTime()
                     })
                 .execute()
-                .then(function(data) {
-                  console.info(JSON.stringify(data, null, 2));
-                  cb(false, data.result);
+                .then(function(updateData) {
+                  console.info(`Gateway::put::putItem::Success: ${JSON.stringify(updateData, null, 2)}`);
+                  cb(false, updateData.result);
                 })
                 .fail(function(e) {
+                    console.info(`Gateway::put::putItem::Error: ${JSON.stringify(e, null, 2)}`);
                     console.info(JSON.stringify(e, null, 2));
                     cb(e);
                 });
         })
         .fail(function(e) {
-            console.info(JSON.stringify(e, null, 2));
+            console.info(`Gateway::put::getItem::Error: ${JSON.stringify(e, null, 2)}`);
             cb(e);
         });
-    
+
 }
