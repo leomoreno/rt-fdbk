@@ -21,7 +21,7 @@ exports.initGateWay = function() {
     }
 }
 
-exports.get = function(uuid, cb) {
+exports.getById = function(uuid, cb) {
     exports.initGateWay();
     return DYNAMO_CLIENT.getItem(TABLE_NAME)
         .setHashKey('uuid', uuid.value)
@@ -32,6 +32,17 @@ exports.get = function(uuid, cb) {
         }).fail(function (e) {
             console.info(JSON.stringify(e, null, 2));
             cb(e);
+        });
+}
+
+exports.get = function(filterField, filterValue, cb) {
+    exports.initGateWay();
+    DYNAMO_CLIENT.newScanBuilder(TABLE_NAME)
+        //.filterAttributeEquals('filterField', 'filterValue')
+        .execute()
+        .then(function(data) {
+            console.info(JSON.stringify(data, null, 2));
+            cb(false, data.result);
         });
 }
 

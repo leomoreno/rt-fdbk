@@ -161,7 +161,26 @@ function createFeedbackViaSlack(req, res) {
 }
 
 function getFeedbackById(req, res) {
-    const feedback = awsGateway.get(req.swagger.params.uuid, (err, data) => {
+    const feedback = awsGateway.getById(req.swagger.params.uuid, (err, data) => {
+      if (err) {
+          //TODO: custom errors dictionary
+          // res.statusCode = 500;
+          console.error("Error JSON:", JSON.stringify(err, null, 2));
+          res.setHeader('Content-Type', 'application/json');
+          res.statusCode = HTTP_CODES.BAD_REQUETS;
+          res.end(JSON.stringify(err, null, 2));
+      } else {
+          console.log("GetItem succeeded:", JSON.stringify(data, null, 2));
+          res.statusCode = HTTP_CODES.OK;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(data, null, 2));
+      }
+    });
+}
+
+
+function getUnansweredFeedbacksByReceiverId(req, res) {
+    const feedback = awsGateway.get('receiverId', req.swagger.params.receiver_id.value, (err, data) => {
       if (err) {
           //TODO: custom errors dictionary
           // res.statusCode = 500;
@@ -218,5 +237,6 @@ module.exports = {
   getFeedbackById: getFeedbackById,
   addFeedbackWithJson: addFeedbackWithJson,
   createFeedbackViaSlack: createFeedbackViaSlack,
-  replyFeedbackById: replyFeedbackById
+  replyFeedbackById: replyFeedbackById,
+  getUnansweredFeedbacksByReceiverId: getUnansweredFeedbacksByReceiverId
 };
