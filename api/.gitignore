@@ -3,3 +3,4 @@ production.yaml
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+local.yaml
