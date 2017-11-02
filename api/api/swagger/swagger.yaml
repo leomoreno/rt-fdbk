@@ -135,7 +135,7 @@ paths:
                 description: Text sent by the Slack user. It should contain one user mention and one :) or :( – Also, the stripped-off message should not be longer than 140 characters.
                 type: string
                 format: slackCommand
-                pattern: "^(<@\\w+\\|?\\w+>{1})\\s?((?: +\\:\\) +)|(?: +\\:\\( +))(.{1,140})"
+                pattern: "^(<@\\w+\\|{1}(?:[a-z0-9._-])+>{1})\\s?((?: +\\:\\) +)|(?: +\\:\\( +))(.{1,140})"
                 example: "<@U012ABCDEF|leo> :( don't wake me up at night anymore please!!"
               response_url:
                 description: "URL to respond in case you want to provide additional command response messages, or if you're unable to immediately respond to a command within 3000 milliseconds, use the specific `response_url`"
