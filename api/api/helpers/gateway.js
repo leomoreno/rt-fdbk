@@ -21,7 +21,7 @@ exports.initGateWay = function() {
     }
 }
 
-exports.get = function(uuid, cb) {
+exports.getById = function(uuid, cb) {
     exports.initGateWay();
     return DYNAMO_CLIENT.getItem(TABLE_NAME)
         .setHashKey('uuid', uuid)
@@ -32,6 +32,19 @@ exports.get = function(uuid, cb) {
         }).fail(function (e) {
             console.info(JSON.stringify(e, null, 2));
             cb(e);
+        });
+}
+
+exports.get = function(filterField, filterValue, cb) {
+    exports.initGateWay();
+    DYNAMO_CLIENT.newScanBuilder(TABLE_NAME)
+        // this sucks per dynamite docs should work
+        //.filterAttributeEquals('filterField', 'filterValue')
+        .execute()
+        .then(function(data) {
+            const filtered = data.result.filter(feedbackItem => feedbackItem[filterField] === filterValue);
+            console.info(JSON.stringify(data, null, 2));
+            cb(false, filtered);
         });
 }
 
