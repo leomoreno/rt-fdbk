@@ -207,7 +207,7 @@ paths:
       description: Updates a feedback with a reply sent from the receiver, sends the reply to the sender and notifies Humar Resources. This can only be triggered by the original receiver.
       operationId: replyFeedbackById
       consumes:
-        - application/x-www-form-urlencoded
+        - text/plain
       produces:
         - application/json
       parameters:

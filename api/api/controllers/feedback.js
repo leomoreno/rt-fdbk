@@ -109,7 +109,7 @@ function replyFeedbackById(req, res) {
     }
 
     if (!err) {
-      data.reply = req.swagger.params.reply.value;
+      data.reply = req.swagger.params.body.value;
       
       feedback = awsGateway.put(data, (err, data) => {
         if (!err) {
