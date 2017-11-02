@@ -176,6 +176,8 @@ paths:
       summary: Get feedback details by ID
       description: Returns a Feedback object given an ID
       operationId: getFeedbackById
+      consumes:
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       parameters:
@@ -197,14 +199,14 @@ paths:
       security:
         - api_key: []
   '/feedback/{uuid}/reply/':
+    x-swagger-router-controller: feedback
     put:
       tags:
         - feedback
-      summary: Updates a feedback with a reply sent from the receiver, sends the reply to the sender and notifies Humar Resources. This can only be triggered by the original receiver.
-      description: Returns a Feedback object given an ID
+      summary: Adds a reply to a feedback.
+      description: Updates a feedback with a reply sent from the receiver, sends the reply to the sender and notifies Humar Resources. This can only be triggered by the original receiver.
       operationId: replyFeedbackById
       consumes:
-        - application/json
         - application/x-www-form-urlencoded
       produces:
         - application/json
@@ -231,8 +233,6 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Feedback not found
-      security:
-        - api_key: []
   '/feedback/search/':
     get:
       tags:
@@ -286,8 +286,8 @@ paths:
               sortBy:
                 description: Name of the field to sort by
                 type: string
-                enum: [created, sender, receiver, message, reply]
-                default: created
+                enum: [createdAt, sender, receiver, message, reply]
+                default: createdAt
               sortDirection:
                 description: Direction of the sort
                 type: string
@@ -567,7 +567,7 @@ definitions:
         minLength: 8
         pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$
         example: This is a strong p@ssw0rd
-      created:
+      createdAt:
         type: string
         format: date-time
         example: '2009-11-13T10:39:35Z'
@@ -604,7 +604,7 @@ definitions:
       reply:
         type: string
         maxLength: 140
-      created:
+      createdAt:
         type: string
         format: date-time
         example: '2009-11-13T10:39:35Z'

@@ -8,6 +8,7 @@
   "license": "",
   "main": "main.js",
   "dependencies": {
+    "dynamite": "^0.9.3",
     "express": "^4.12.3",
     "swagger-express-mw": "^0.1.0"
   },
