@@ -43,7 +43,6 @@ exports.get = function(filterField, filterValue, cb) {
         .execute()
         .then(function(data) {
             const filtered = data.result.filter(feedbackItem => feedbackItem[filterField] === filterValue);
-            console.info(JSON.stringify(data, null, 2));
             cb(false, filtered);
         });
 }
