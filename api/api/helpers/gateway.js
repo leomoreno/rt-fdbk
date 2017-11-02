@@ -17,7 +17,6 @@ exports.initGateWay = function() {
         accessKeyId: dynamoSettings.accessKeyId,
         secretAccessKey: dynamoSettings.secretAccessKey
       };
-
       DYNAMO_CLIENT = new Dynamite.Client(options);
     }
 }
@@ -30,13 +29,14 @@ exports.get = function(uuid, cb) {
         .then(function(data) {
             console.info(JSON.stringify(data, null, 2));
             cb(false, data.result);
+        }).fail(function (e) {
+            console.info(JSON.stringify(e, null, 2));
+            cb(e);
         });
 }
 
 exports.post = function(args, cb) {
     exports.initGateWay();
-
-    console.log("Adding a new item...", args);
     return DYNAMO_CLIENT.putItem(
         TABLE_NAME, {
             uuid: uuidv4(),
