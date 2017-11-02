@@ -47,7 +47,6 @@ function addFeedbackWithJson(req, res) {
 
 function feedbackParamsFromSlackPayload(slackPayload) {
   const FEEDBACK_REGEX = {
-
     RECEIVER: /^<@(\w+)\|{1}([a-z0-9._-])+>{1}/g,
     TYPE: /(?: +\:\) +)|(?: +\:\( +)/g,
     MESSAGE: /((?: +\:\) +)|(?: +\:\( +))(.{1,140})/g
@@ -189,14 +188,13 @@ function getUnansweredFeedbacksByReceiverId(req, res) {
           res.statusCode = HTTP_CODES.BAD_REQUETS;
           res.end(JSON.stringify(err, null, 2));
       } else {
-          console.log("getFeedbackById succeeded:", JSON.stringify(data, null, 2));
+          const filtered = data.filter(feedbackItem => feedbackItem.reply === undefined);
           res.statusCode = HTTP_CODES.OK;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(data, null, 2));
+          res.end(JSON.stringify(filtered, null, 2));
       }
     });
 }
-
 
 function replyFeedbackById(req, res) {
   awsGateway.getById(req.swagger.params.uuid.value, (err, feedback) => {
