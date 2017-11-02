@@ -24,7 +24,7 @@ exports.initGateWay = function() {
 exports.get = function(uuid, cb) {
     exports.initGateWay();
     return DYNAMO_CLIENT.getItem(TABLE_NAME)
-        .setHashKey('uuid', uuid.value)
+        .setHashKey('uuid', uuid)
         .execute()
         .then(function(data) {
             // console.info(JSON.stringify(data, null, 2));

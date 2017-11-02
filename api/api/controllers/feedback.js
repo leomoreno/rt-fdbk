@@ -161,7 +161,7 @@ function createFeedbackViaSlack(req, res) {
 }
 
 function getFeedbackById(req, res) {
-    const feedback = awsGateway.get(req.swagger.params.uuid, (err, data) => {
+    const feedback = awsGateway.get(req.swagger.params.uuid.value, (err, data) => {
       if (err) {
           //TODO: custom errors dictionary
           // res.statusCode = 500;
@@ -180,7 +180,9 @@ function getFeedbackById(req, res) {
 
 
 function replyFeedbackById(req, res) {
-  const feedback = awsGateway.get(req.swagger.params.uuid, (err, data) => {
+  const feedback = awsGateway.get(req.swagger.params.uuid.value, (err, data) => {
+
+    console.log('DATAAAAA ---->', data);
     if (data == undefined) {
         err = {
           message: 'Feedback does not exists'
