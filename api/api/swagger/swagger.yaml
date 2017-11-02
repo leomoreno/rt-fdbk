@@ -198,6 +198,37 @@ paths:
           description: Feedback not found
       security:
         - api_key: []
+  '/feedback/unanswered/{receiver_id}':
+    x-swagger-router-controller: feedback
+    get:
+      tags:
+        - feedback
+      summary: Get all unanswered feedbacks of a user
+      description: Returns an array of Feedback objects that have no reply and were received by the user
+      operationId: getUnansweredFeedbacksByReceiverId
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: receiver_id
+          in: path
+          description: ID of user
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feedback'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Feedback not found
+      security:
+        - api_key: []
   '/feedback/{uuid}/reply/':
     x-swagger-router-controller: feedback
     put:
