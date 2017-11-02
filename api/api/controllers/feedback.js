@@ -47,12 +47,14 @@ function addFeedbackWithJson(req, res) {
 
 function feedbackParamsFromSlackPayload(slackPayload) {
   const FEEDBACK_REGEX = {
-    RECEIVER: /^<@(\w+)\|?(\w+)>{1}/g,
+
+    RECEIVER: /^<@(\w+)\|{1}([a-z0-9._-])+>{1}/g,
     TYPE: /(?: +\:\) +)|(?: +\:\( +)/g,
     MESSAGE: /((?: +\:\) +)|(?: +\:\( +))(.{1,140})/g
   };
-
   const receiverMatch = FEEDBACK_REGEX.RECEIVER.exec(slackPayload.text);
+  console.info("receiverMatch");
+  console.info(receiverMatch);
   const receiverId = receiverMatch[1];
   const receiverName = receiverMatch[2];
   const type = slackPayload.text.match(FEEDBACK_REGEX.TYPE)[0].trim();
