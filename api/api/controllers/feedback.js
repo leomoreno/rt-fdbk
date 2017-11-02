@@ -96,7 +96,7 @@ function createFeedbackViaSlack(req, res) {
   const requestParams = req.swagger.params.body.value;
   const feedbackParams = feedbackParamsFromSlackPayload(requestParams);
   const newFeedback = feedbackFromParams(feedbackParams);
-  const feedback = awsGateway.post(newFeedback, (err, data) => {
+  awsGateway.post(newFeedback, (err, data) => {
     console.info("awsGateway.post", err, data);
     if (err) {
         // TODO: custom errors dictionary
@@ -161,7 +161,7 @@ function createFeedbackViaSlack(req, res) {
 }
 
 function getFeedbackById(req, res) {
-    const feedback = awsGateway.get(req.swagger.params.uuid.value, (err, data) => {
+    awsGateway.get(req.swagger.params.uuid.value, (err, data) => {
       if (err) {
           //TODO: custom errors dictionary
           // res.statusCode = 500;
@@ -170,7 +170,7 @@ function getFeedbackById(req, res) {
           res.statusCode = HTTP_CODES.BAD_REQUETS;
           res.end(JSON.stringify(err, null, 2));
       } else {
-          console.log("GetItem succeeded:", JSON.stringify(data, null, 2));
+          console.log("getFeedbackById succeeded:", JSON.stringify(data, null, 2));
           res.statusCode = HTTP_CODES.OK;
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(data, null, 2));
@@ -180,39 +180,62 @@ function getFeedbackById(req, res) {
 
 
 function replyFeedbackById(req, res) {
-  const feedback = awsGateway.get(req.swagger.params.uuid.value, (err, data) => {
-
-    console.log('DATAAAAA ---->', data);
-    if (data == undefined) {
-        err = {
-          message: 'Feedback does not exists'
-        }
-    }
-
-    if (!err) {
-      data.reply = req.swagger.params.body.value;
-
-      feedback = awsGateway.put(data, (err, data) => {
-        if (!err) {
-
-          console.log("Update item succeeded:", data);
-
-          res.statusCode = HTTP_CODES.OK;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(data, null, 2));
-        }
-      });
-
-    }
-
+  awsGateway.get(req.swagger.params.uuid.value, (err, feedback) => {
     if (err) {
-      //TODO: custom errors dictionary
-      // res.statusCode = 500;
-      console.error("Error JSON:", JSON.stringify(err, null, 2));
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = HTTP_CODES.BAD_REQUETS;
-      res.end(JSON.stringify(err, null, 2));
+        console.error("Error getting feedback:", JSON.stringify(err, null, 2));
+        res.setHeader('Content-Type', 'application/json');
+        res.statusCode = HTTP_CODES.BAD_REQUETS;
+        res.end(JSON.stringify(err, null, 2));
+    } else {
+        if (!feedback) {
+          res.setHeader('Content-Type', 'application/json');
+          res.statusCode = HTTP_CODES.NOT_FOUND;
+          res.end(JSON.stringify({
+            message: 'Feedback does not exists'
+            }, null, 2)
+          );
+        } else {
+          feedback.reply = req.swagger.params.body.value;
+          awsGateway.put(feedback, (err, data) => {
+            console.info(`after update: ${err} ${data}`)
+            if (err) {
+                console.error("Error UPDATING:", JSON.stringify(err, null, 2));
+                res.setHeader('Content-Type', 'application/json');
+                res.statusCode = HTTP_CODES.BAD_REQUETS;
+                res.end(JSON.stringify(err, null, 2));
+            } else {
+              res.statusCode = HTTP_CODES.OK;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(data, null, 2));
+            }
+          });
+        }
     }
+
+    // if (!err) {
+    //   data.reply = req.swagger.params.body.value;
+    //
+    //   feedback = awsGateway.put(data, (err, data) => {
+    //     if (!err) {
+    //
+    //       console.log("Update item succeeded:", data);
+    //
+    //       res.statusCode = HTTP_CODES.OK;
+    //       res.setHeader('Content-Type', 'application/json');
+    //       res.end(JSON.stringify(data, null, 2));
+    //     }
+    //   });
+    //
+    // }
+
+    // if (err) {
+    //   //TODO: custom errors dictionary
+    //   // res.statusCode = 500;
+    //   console.error("Error JSON:", JSON.stringify(err, null, 2));
+    //   res.setHeader('Content-Type', 'application/json');
+    //   res.statusCode = HTTP_CODES.BAD_REQUETS;
+    //   res.end(JSON.stringify(err, null, 2));
+    // }
   });
 }
 
